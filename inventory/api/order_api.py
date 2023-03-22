@@ -4,11 +4,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from inventory.models import Order
 from inventory.serializers import OrderSerializer, OrderSerializerPost
+from rest_framework.permissions import IsAdminUser
 
 class OrderListAPIView(APIView):
     """
     List all orders or create a new order
     """
+
+    permission_classes = [IsAdminUser]
 
     def get(self, request, format=None):
         orders = Order.objects.all()
@@ -26,6 +29,9 @@ class OrderDetailAPIView(APIView):
     """
     Retrieve, update or delete an order instance
     """
+
+    permission_classes = [IsAdminUser]
+
     def get_object(self, pk):
         try:
             return Order.objects.get(pk=pk)
@@ -57,6 +63,9 @@ class OrdersByCustomerAPIView(APIView):
     """
     List all orders for a specific customer
     """
+
+    permission_classes = [IsAdminUser]
+
     def get(self, request, customer_email, format=None):
         orders = Order.objects.filter(customer_email=customer_email)
         serializer = OrderSerializer(orders, many=True)

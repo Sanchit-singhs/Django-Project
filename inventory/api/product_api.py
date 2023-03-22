@@ -4,11 +4,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from inventory.models import Product
 from inventory.serializers import ProductSerializer
+from rest_framework.permissions import IsAdminUser
 
 class ProductListAPIView(APIView):
     """
     List all products or create a new product
     """
+    
+    permission_classes = [IsAdminUser]
+
     def get(self, request, format=None):
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
@@ -17,14 +21,15 @@ class ProductListAPIView(APIView):
     def post(self, request, format=None):
         serializer = ProductSerializer(data=request.data)
         if serializer.is_valid():
-            product_data = request.data
-            product = Product.objects.create(
-                name=product_data.get('name'),
-                price=product_data.get('price'),
-                description=product_data.get('description'),
-                quantity=product_data.get('quantity'),
-                log=product_data.get('log'),
-            )
+            # product_data = request.data
+            # product = Product.objects.create(
+            #     name=product_data.get('name'),
+            #     price=product_data.get('price'),
+            #     description=product_data.get('description'),
+            #     quantity=product_data.get('quantity'),
+            #     log=product_data.get('log'),
+            # )
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -32,6 +37,9 @@ class ProductDetailAPIView(APIView):
     """
     Retrieve, update or delete a product instance
     """
+
+    permission_classes = [IsAdminUser]
+    
     def get_object(self, pk):
         try:
             return Product.objects.get(pk=pk)

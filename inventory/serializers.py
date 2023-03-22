@@ -18,10 +18,6 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         exclude = ['deleted_at', 'created_by', 'updated_by', 'created_at', 'updated_at']
 
-        prefetch_related = (
-            Prefetch('product', queryset=Product.objects.only('id', 'name'))
-        )
-
     def create(self, validated_data):
         product_data = validated_data.pop('product')
         product = Product.objects.get(pk=product_data['id'])
@@ -35,7 +31,6 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         exclude = ['deleted_at', 'created_by', 'updated_by', 'created_at', 'updated_at']
-        prefetch_related = Prefetch('product', queryset=Product.objects.only('id', 'name'))
 
     def get_num_products(self, obj):
         items = obj.items.all()

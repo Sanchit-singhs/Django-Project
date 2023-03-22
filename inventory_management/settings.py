@@ -57,6 +57,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+    'DEFAULT PERMISSION CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+        ),
 }
 
 ROOT_URLCONF = 'inventory_management.urls'

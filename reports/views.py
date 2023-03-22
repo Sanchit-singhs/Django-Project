@@ -1,13 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Report
+from .models import ReportData
 from .serializers import ReportSerializer
 
 class ReportAPIView(APIView):
     def get(self, request, format=None):
         # Get all reports from database
-        reports = Report.objects.all()
+        reports = ReportData.objects.all()
 
         # Serialize reports data
         serializer = ReportSerializer(reports, many=True)
