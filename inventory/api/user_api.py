@@ -2,13 +2,10 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from inventory.models import Product, Order, OrderItem
-from inventory.serializers import ProductSerializer, OrderSerializer, UserSerializer
-# from django.contrib.auth.models import User
+from inventory.serializers import UserSerializer
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from datetime import datetime
 
 User = get_user_model()
 
@@ -36,8 +33,6 @@ class UserListAPIView(APIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            # token = Token.objects.create(user=user)
-            # token, created = Token.objects.get_or_create(user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -83,11 +78,9 @@ class LoginView(APIView):
 
         if not user.check_password(password):
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST) 
-        # user = request.user
         token, created = Token.objects.get_or_create(user_id=user.id)
 
         return Response({
             'token': token.key,
-            # 'user_name': user.name,
             'email': user.email,
         }, status=status.HTTP_200_OK)
