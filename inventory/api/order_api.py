@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from inventory.models import Order
 from inventory.serializers import OrderSerializer, OrderSerializerPost
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 class OrderListAPIView(APIView):
     """
