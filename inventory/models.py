@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class BaseModel(models.Model):
     created_by = models.ForeignKey('Admin_panel.CustomUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
@@ -40,9 +42,15 @@ class OrderItem(BaseModel):
         self.price = self.product.price
         self.total_price = self.quantity * self.price
         super(OrderItem, self).save(*args, **kwargs)
-        order = self.order
-        order.total_bill = sum(item.total_price for item in order.items.all())
-        order.save()
+        # order = self.order
+        # order.total_bill = sum(item.total_price for item in order.items.all())
+        # order.save()
 
     def __str__(self):
         return f'{self.quantity} x {self.product.name} @ {self.price} = {self.total_price}'
+    
+@receiver(post_save, sender=OrderItem)
+def update_order_total_bill(sender, instance, **kwargs):
+    order = instance.order
+    order.total_bill = sum(item.total_price for item in order.items.all())
+    order.save()

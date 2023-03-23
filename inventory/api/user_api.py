@@ -15,7 +15,7 @@ class CustomObtainAuthToken(ObtainAuthToken):
     Override ObtainAuthToken to return user object with token
     """
 
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
