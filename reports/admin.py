@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ReportData, SalesRecord, Vendor
+from .models import ReportData, PurchaseRecord, Vendor
 
 class ReportAdmin(admin.ModelAdmin):
     list_display = ('report_type', 'report_date')
@@ -12,4 +12,4 @@ class InvAdmin(admin.ModelAdmin):
 
 admin.site.register(ReportData, ReportAdmin)
 admin.site.register(Vendor, SellerAdmin)
-admin.site.register(SalesRecord, InvAdmin)
+admin.site.register(PurchaseRecord, InvAdmin)

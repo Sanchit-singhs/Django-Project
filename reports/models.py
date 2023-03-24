@@ -1,10 +1,7 @@
 from django.db import models
 from inventory.models import Product
-# Create your models here.
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 class ReportData(models.Model):
     REPORT_TYPE_CHOICES = (
@@ -25,12 +22,13 @@ class Vendor(models.Model):
     def __str__(self) -> str:
         return self.name
 
-class SalesRecord(models.Model):
+class PurchaseRecord(models.Model):
     PAYMENT_STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('complete', 'Complete'),
     )
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField()
     seller = models.ForeignKey(Vendor, on_delete=models.CASCADE)
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
@@ -40,9 +38,3 @@ class SalesRecord(models.Model):
     #     product = self.product
     #     product.quantity += self.quantity
     #     product.save()
-
-@receiver(post_save, sender=SalesRecord)
-def update_product_quantity(sender, instance, **kwargs):
-    product = instance.product
-    product.quantity += instance.quantity
-    product.save()

@@ -28,18 +28,16 @@ class OrderSerializer(serializers.ModelSerializer):
     num_products = serializers.SerializerMethodField()
     product_names = serializers.SerializerMethodField()
     items = OrderItemSerializer(many=True)
+    # staff_status = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         # exclude = ['deleted_at', 'created_by', 'updated_by', 'created_at', 'updated_at']
         fields = '__all__'
 
-    # def __init__(self, *args, **kwargs):
-    #     self.request = kwargs.pop('request', None)
-    #     super().__init__(*args, **kwargs)
-
     def get_num_products(self, obj):
         items = obj.items.all()
+        # print(self.context.get('request').user.is_staff)
         num_products = items.count()
         return num_products
 
@@ -49,14 +47,15 @@ class OrderSerializer(serializers.ModelSerializer):
         product_names = [item.product.name for item in items]
         return product_names
     
-    # def to_representation(self, instance):
-    #     if 'Authorization' in self.request.headers:
-    #         auth_header = self.request.headers['Authorization']
-    #         token = auth_header.split(' ')[1]
-    #         user = Token.objects.get(key=token).user
-    #         if not user.is_staff:
-    #             self.fields.pop('id')
-    #     return super().to_representation(instance)
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        staff_status = self.context.get('request').user.is_staff
+        
+        if not staff_status:
+            pop_items = ['deleted_at', 'created_by', 'updated_by', 'created_at', 'updated_at', 'items', 'id']
+            for pops in pop_items:
+                representation.pop(pops)
+        return representation
     
 
 class OrderSerializerPost(serializers.ModelSerializer):

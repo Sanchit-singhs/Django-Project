@@ -17,21 +17,11 @@ class OrderListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
-        orders = Order.objects.all()
-        serializer = OrderSerializer(orders, many=True)
-        if 'Authorization' in request.headers:
-            auth_header = request.headers['Authorization']
-            token = auth_header.split(' ')[1]
-            user = Token.objects.get(key=token).user
-            if not user.is_staff:
-                for remove_id in range(len(serializer.data)):
-                    del serializer.data[remove_id]['id']
-                    del serializer.data[remove_id]['created_at']
-                    del serializer.data[remove_id]['updated_at']
-                    del serializer.data[remove_id]['deleted_at']
-                    del serializer.data[remove_id]['created_by']
-                    del serializer.data[remove_id]['updated_by']
-                    del serializer.data[remove_id]['items']
+        # orders = Order.objects.all()
+        orders = Order.objects.prefetch_related('items__product').all()
+        serializer = OrderSerializer(orders, many=True, context={
+        'request': request
+    })
         return Response(serializer.data)
 
     def post(self, request, format=None):
