@@ -28,9 +28,15 @@ class OrderSerializer(serializers.ModelSerializer):
     num_products = serializers.SerializerMethodField()
     product_names = serializers.SerializerMethodField()
     items = OrderItemSerializer(many=True)
+
     class Meta:
         model = Order
-        exclude = ['deleted_at', 'created_by', 'updated_by', 'created_at', 'updated_at']
+        # exclude = ['deleted_at', 'created_by', 'updated_by', 'created_at', 'updated_at']
+        fields = '__all__'
+
+    # def __init__(self, *args, **kwargs):
+    #     self.request = kwargs.pop('request', None)
+    #     super().__init__(*args, **kwargs)
 
     def get_num_products(self, obj):
         items = obj.items.all()
@@ -42,6 +48,16 @@ class OrderSerializer(serializers.ModelSerializer):
         items = obj.items.select_related('product')
         product_names = [item.product.name for item in items]
         return product_names
+    
+    # def to_representation(self, instance):
+    #     if 'Authorization' in self.request.headers:
+    #         auth_header = self.request.headers['Authorization']
+    #         token = auth_header.split(' ')[1]
+    #         user = Token.objects.get(key=token).user
+    #         if not user.is_staff:
+    #             self.fields.pop('id')
+    #     return super().to_representation(instance)
+    
 
 class OrderSerializerPost(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)

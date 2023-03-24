@@ -5,17 +5,33 @@ from rest_framework import status
 from inventory.models import Order
 from inventory.serializers import OrderSerializer, OrderSerializerPost
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
 
 class OrderListAPIView(APIView):
     """
     List all orders or create a new order
     """
 
-    permission_classes = [IsAdminUser]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         orders = Order.objects.all()
         serializer = OrderSerializer(orders, many=True)
+        if 'Authorization' in request.headers:
+            auth_header = request.headers['Authorization']
+            token = auth_header.split(' ')[1]
+            user = Token.objects.get(key=token).user
+            if not user.is_staff:
+                for remove_id in range(len(serializer.data)):
+                    del serializer.data[remove_id]['id']
+                    del serializer.data[remove_id]['created_at']
+                    del serializer.data[remove_id]['updated_at']
+                    del serializer.data[remove_id]['deleted_at']
+                    del serializer.data[remove_id]['created_by']
+                    del serializer.data[remove_id]['updated_by']
+                    del serializer.data[remove_id]['items']
         return Response(serializer.data)
 
     def post(self, request, format=None):
@@ -30,7 +46,8 @@ class OrderDetailAPIView(APIView):
     Retrieve, update or delete an order instance
     """
 
-    permission_classes = [IsAdminUser]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get_object(self, pk):
         try:
@@ -64,7 +81,8 @@ class OrdersByCustomerAPIView(APIView):
     List all orders for a specific customer
     """
 
-    permission_classes = [IsAdminUser]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get(self, request, customer_email, format=None):
         orders = Order.objects.filter(customer_email=customer_email)

@@ -7,6 +7,8 @@ from django.contrib.auth import get_user_model
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAdminUser
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
 
@@ -15,7 +17,8 @@ class CustomObtainAuthToken(ObtainAuthToken):
     Override ObtainAuthToken to return user object with token
     """
 
-    permission_classes = [IsAdminUser]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
@@ -29,7 +32,8 @@ class UserListAPIView(APIView):
     List all users or create a new user
     """
 
-    permission_classes = [IsAdminUser]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get(self, request, format=None):
         users = User.objects.all()
@@ -48,7 +52,8 @@ class UserDetailAPIView(APIView):
     Retrieve, update or delete a user instance
     """
 
-    permission_classes = [IsAdminUser]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get_object(self, pk):
         try:

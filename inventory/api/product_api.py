@@ -5,13 +5,16 @@ from rest_framework import status
 from inventory.models import Product
 from inventory.serializers import ProductSerializer
 from rest_framework.permissions import IsAdminUser
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 class ProductListAPIView(APIView):
     """
     List all products or create a new product
     """
     
-    permission_classes = [IsAdminUser]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get(self, request, format=None):
         products = Product.objects.all()
@@ -38,7 +41,8 @@ class ProductDetailAPIView(APIView):
     Retrieve, update or delete a product instance
     """
 
-    permission_classes = [IsAdminUser]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     
     def get_object(self, pk):
         try:
